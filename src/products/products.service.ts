@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { PaginationDto } from 'src/common';
 
 @Injectable()
-export class ProductsService extends PrismaClient implements OnModuleInit{
+export class ProductsService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger('ProductsService');
 
   onModuleInit() {
@@ -17,9 +17,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit{
     return 'This action adds a new product';
   }
 
-  async findAll( paginationDto: PaginationDto ) {
-
-    
+  async findAll(paginationDto: PaginationDto) {
     const { page, limit } = paginationDto;
 
     const totalPages = await this.productos.count();
@@ -33,26 +31,26 @@ export class ProductsService extends PrismaClient implements OnModuleInit{
           categoria: {
             select: {
               nombre: true,
-              slug: true
-            }
+              slug: true,
+            },
           },
           marca: {
             select: {
               id: true,
               nombre: true,
-            }
+            },
           },
         },
         orderBy: {
-          createdAt: "desc"
-        }
+          createdAt: 'desc',
+        },
       }),
       meta: {
         total: totalPages,
         page: page,
         lastPage: lastPage,
-      }
-    }
+      },
+    };
   }
 
   findOne(id: number) {
