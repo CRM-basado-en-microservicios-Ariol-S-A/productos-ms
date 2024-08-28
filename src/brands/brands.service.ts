@@ -3,6 +3,7 @@ import {
   Injectable,
   OnModuleInit,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { PaginationDto } from 'src/common';
@@ -21,6 +22,16 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
   }
 
   async create(createBrandDto: CreateBrandDto) {
+    const marcaExiste = await this.marcas.findFirst({
+      where: { nombre : createBrandDto.nombre}
+    });
+
+    if( marcaExiste) {
+      return new BadRequestException("La marca ya existe");
+    } 
+
+    console.log(marcaExiste)
+
     const marca = await this.marcas.create({
       data: createBrandDto,
     });
@@ -54,7 +65,7 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
   }
 
   async update(id: string, updateBrandDto: UpdateBrandDto) {
-    const { description, nombre } = updateBrandDto;
+    const { descripcion, nombre } = updateBrandDto;
 
     const marca = await this.marcas.findFirst({
       where: { id },
@@ -68,7 +79,7 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
       where: { id },
       data: {
         nombre,
-        description,
+        descripcion,
       },
     });
 

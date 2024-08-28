@@ -15,7 +15,7 @@ datasource db {
 
 model Productos {
   id           String @id @default(uuid())
-  nombre       String
+  nombre       String @unique
   description  String
   nroSerie     String @unique
   imagen       String
@@ -40,8 +40,8 @@ model Productos {
 
 model Marcas {
   id          String @id @default(uuid())
-  nombre      String
-  description String
+  nombre      String @unique
+  descripcion String?
 
   productos Productos[]
 
@@ -51,7 +51,7 @@ model Marcas {
 
 model Categorias {
   id     Int    @id @default(autoincrement())
-  nombre String
+  nombre String @unique
   slug   String @unique
 
   productos Productos[]
@@ -63,8 +63,8 @@ model Categorias {
 model Proveedores {
   id Int @id @default(autoincrement())
 
-  nombre    String
-  telefono  String?
+  nombre    String  @unique
+  telefono  String? @unique
   direccion String?
 
   productos Productos[]
