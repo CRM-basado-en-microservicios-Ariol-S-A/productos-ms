@@ -2,8 +2,7 @@ import {
   Logger,
   Injectable,
   OnModuleInit,
-  NotFoundException,
-  BadRequestException,
+  HttpStatus,
 } from '@nestjs/common';
 
 import { PaginationDto } from 'src/common';
@@ -11,6 +10,7 @@ import { PrismaClient } from '@prisma/client';
 
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class BrandsService extends PrismaClient implements OnModuleInit {
@@ -27,17 +27,18 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
     });
 
     if( marcaExiste) {
-      return new BadRequestException("La marca ya existe");
+      throw new RpcException({
+        message: "La marca ya esta registrada",
+        status: HttpStatus.BAD_REQUEST
+      });
     } 
-
-    console.log(marcaExiste)
 
     const marca = await this.marcas.create({
       data: createBrandDto,
     });
 
     return {
-      message: 'Marca registrada',
+      message: 'Se registro la marca exitosamente',
       marca,
     };
   }
@@ -72,7 +73,10 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
     });
 
     if (!marca) {
-      return new NotFoundException();
+      throw new RpcException({
+        message: "No se encontro la marca",
+        status: HttpStatus.NOT_FOUND
+      });
     }
 
     const updateBrand = await this.marcas.update({
