@@ -23,15 +23,15 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
 
   async create(createBrandDto: CreateBrandDto) {
     const marcaExiste = await this.marcas.findFirst({
-      where: { nombre : createBrandDto.nombre}
+      where: { nombre: createBrandDto.nombre }
     });
 
-    if( marcaExiste) {
+    if (marcaExiste) {
       throw new RpcException({
         message: "La marca ya esta registrada",
         status: HttpStatus.BAD_REQUEST
       });
-    } 
+    }
 
     const marca = await this.marcas.create({
       data: createBrandDto,
@@ -44,25 +44,69 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
   }
 
   async findAll(paginationDto: PaginationDto) {
-    const { page, limit } = paginationDto;
+    const { page, limit, search } = paginationDto;
 
-    const totalPages = await this.marcas.count();
+    const totalBrands = await this.marcas.count();
+
+
+    if (!search) {
+      const lastPage = Math.ceil(totalBrands / limit);
+
+      return {
+        marcas: await this.marcas.findMany({
+          skip: (page - 1) * limit,
+          take: limit,
+          orderBy: {
+            createdAt: "desc"
+          }
+        }),
+        meta: {
+          total: totalBrands,
+          page: page,
+          lastPage: lastPage,
+        }
+      }
+    }
+
+    const totalPages = await this.marcas.count({
+      where: {
+        OR: [
+          {
+            nombre: {
+              contains: search
+            },
+          }
+        ]
+
+      }
+    });
+
     const lastPage = Math.ceil(totalPages / limit);
 
     return {
       marcas: await this.marcas.findMany({
+        where: {
+          OR: [
+            {
+              nombre: {
+                contains: search
+              },
+            }
+          ]
+
+        },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
-          createdAt: 'desc',
-        },
+          createdAt: "desc"
+        }
       }),
       meta: {
-        total: totalPages,
+        total: totalBrands,
         page: page,
         lastPage: lastPage,
-      },
-    };
+      }
+    }
   }
 
   async update(id: string, updateBrandDto: UpdateBrandDto) {
@@ -94,6 +138,16 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
   }
 
   async remove(id: string) {
+
+    const marcaExists = await this.marcas.findFirst({ where: { id } })
+
+    if (!marcaExists) {
+      throw new RpcException({
+        message: "No se encontro la marca",
+        status: HttpStatus.NOT_FOUND
+      });
+    }
+
     const marca = await this.marcas.delete({
       where: { id },
     });
