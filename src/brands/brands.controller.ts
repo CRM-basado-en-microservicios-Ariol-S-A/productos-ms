@@ -26,7 +26,6 @@ export class BrandsController {
 
   @MessagePattern('removeBrand')
   remove(@Payload() id: string) {
-    console.log(id)
     return this.brandsService.remove(id);
   }
 }
