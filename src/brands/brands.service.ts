@@ -50,7 +50,7 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
     const lastPage = Math.ceil(totalPages / limit);
 
     return {
-      marcas: await this.marcas.findMany({
+      brands: await this.marcas.findMany({
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
