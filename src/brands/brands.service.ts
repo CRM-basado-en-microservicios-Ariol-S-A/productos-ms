@@ -48,7 +48,6 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
 
     const totalBrands = await this.marcas.count();
 
-
     if (!search) {
       const lastPage = Math.ceil(totalBrands / limit);
 
@@ -85,6 +84,16 @@ export class BrandsService extends PrismaClient implements OnModuleInit {
 
     return {
       brands: await this.marcas.findMany({
+        where: {
+          OR: [
+            {
+              nombre: {
+                contains: search
+              },
+            }
+          ]
+
+        },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
